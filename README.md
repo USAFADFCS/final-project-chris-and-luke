@@ -47,7 +47,7 @@ echo "ANTHROPIC_API_KEY=your_anthropic_api_key_here" >> .env
 Or export them as environment variables:
 
 ```bash
-export OPENAI_API_KEY="your_openai_api_key_here"
+export OPENAI_API_KEY="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"
 export ANTHROPIC_API_KEY="your_anthropic_api_key_here"
 ```
 
@@ -66,7 +66,11 @@ You should see a colorful output showing all components are properly installed!
 Once installed, try the demo scripts:
 
 ### Essay Autograder Demo
+
+
+
 ```bash
+
 # Basic grading
 python demos/demo_committee_of_agents_essay_autograder.py \
   --essays essay_autograder_files/essays_to_grade/ \
