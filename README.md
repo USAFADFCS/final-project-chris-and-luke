@@ -1,162 +1,74 @@
-[![Review Assignment Due Date](https://classroom.github.com/assets/deadline-readme-button-22041afd0340ce965d47ae6ef1cefeee28c7c493a6346c4f15d667ab976d596c.svg)](https://classroom.github.com/a/nwy6MBDZ)
-# FAIR-LLM Installation Guide
+Disaster Response Scheduling Agent
+==================================
 
-## 🚀 Quick Installation
+Agentic AI for disaster-response staffing built on FairLib + OpenAI. It generates schedules, checks coverage, and simulates supply usage. A simple tkinter GUI lets you run scenarios without the terminal.
 
-### Prerequisites
-- Python 3.8 or higher
-- pip package manager
+Features
+--------
+- Agentic tool chain: `schedule_builder`, `coverage_checker`, `schedule_completeness`, `supply_monitor`.
+- Deterministic scheduler: fixed horizon (default 8 hours), hourly slots, max hours/day, max consecutive slots, station + role + skills.
+- Supply simulation: water, food, med kits, fuel; per-person-per-hour consumption; run-out times and remaining amounts.
+- GUI: form inputs for people and supplies, one-click “Run Scheduler”, and readable summaries.
 
-### Step 1: Clone the Repository (for demos)
-
-```bash
-git clone git@github.com:USAFA-AI-Center/fair_llm_demos.git
-cd fair-llm-demos
-```
-
-### Step 2: Install All Dependencies
-
-Simply install everything needed using the requirements file:
-
-```bash
-pip install -r requirements.txt
-```
-
-This will install:
-- `fair-llm>=0.1` - The core FAIR-LLM package
-- `python-dotenv` - For environment variable management
-- `rich` - For beautiful terminal output
-- `anthropic` - For Anthropic Claude integration
-- `faiss-cpu` - For vector search capabilities
-- `seaborn` - For data visualization
-- `pytest` - For testing
-
-### Step 3: Set Up API Keys
-
-Create a `.env` file in your project root:
-
-```bash
-# Copy the example file
-cp .env.example .env
-
-# Or create a new one
-echo "OPENAI_API_KEY=your_openai_api_key_here" > .env
-echo "ANTHROPIC_API_KEY=your_anthropic_api_key_here" >> .env
-```
-
-Or export them as environment variables:
-
-```bash
-export OPENAI_API_KEY="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"
-export ANTHROPIC_API_KEY="your_anthropic_api_key_here"
-```
-
-### Step 4: Verify Installation
-
-Run the verification script:
-
-```bash
-python verify_setup.py
-```
-
-You should see a colorful output showing all components are properly installed!
-
-## 🎯 Running the Demos
-
-Once installed, try the demo scripts:
-
-### Essay Autograder Demo
+Project Structure (relevant files)
+----------------------------------
+- `run_midpoint_demo.py` – tools, agent builder, scheduling/supply logic, GUI entry, helpers (`run_disaster_sim`, `format_hourly_schedule`, `coverage_checker`, `schedule_completeness`, `supply_monitor` ).
 
 
+Requirements & Setup
+--------------------
+- Python 3.x
+- Packages: `fairlib`, `openai` (or compatible adapter), `python-dotenv`, `tkinter` (usually bundled)
+- Install: `pip install -r requirements.txt` (if present)
+- Env var: `OPENAI_API_KEY`
+  - `.env` example: `OPENAI_API_KEY=your_openai_api_key_here`
+  - Or set in shell: `setx OPENAI_API_KEY "your_openai_api_key_here"` (Windows) or `$env:OPENAI_API_KEY="your_openai_api_key_here"` (PowerShell session)
 
-```bash
+How the Agent Works
+-------------------
+1) `schedule_builder`: create schedule from people, roles/skills, stations, horizon, constraints.
+2) `coverage_checker`: check required roles per slot/station.
+3) `schedule_completeness`: compute covered/total hours and gap list.
+4) `supply_monitor`: simulate headcount per slot, consume supplies, report remaining/run-out.
 
-# Basic grading
-python demos/demo_committee_of_agents_essay_autograder.py \
-  --essays essay_autograder_files/essays_to_grade/ \
-  --rubric essay_autograder_files/grading_rubric.txt \
-  --output essay_autograder_files/graded_essays/
+Final output (JSON keys): `coverage_rate`, `passed`, `covered_hours`, `total_hours`, `first_two_gaps`, `supplies_ok`, `hours_supported`, `supply_runout_times`, `supply_remaining`.
 
-# With RAG fact-checking
-python demos/demo_committee_of_agents_essay_autograder.py \
-  --essays essay_autograder_files/essays_to_grade/ \
-  --rubric essay_autograder_files/grading_rubric.txt \
-  --output essay_autograder_files/graded_essays/ \
-  --materials essay_autograder_files/course_materials/
-```
+Running the App (GUI)
+---------------------
+From the project directory: `python run_midpoint_demo.py`
 
-### Code Autograder Demo
-```bash
-# Static analysis only (safer)
-python demos/demo_committee_of_agents_coding_autograder.py \
-  --submissions coding_autograder_files/submissions/ \
-  --rubric coding_autograder_files/rubric.txt \
-  --output coding_autograder_files/reports/ \
-  --no-run
+Inputs: total responders, water (L), food (meals), medical kits, fuel (L). Click “Run Scheduler”.
 
-# With test execution (requires sandbox)
-python demos/demo_committee_of_agents_coding_autograder.py \
-  --submissions coding_autograder_files/submissions/ \
-  --tests coding_autograder_files/tests/test_calculator.py \
-  --rubric coding_autograder_files/rubric.txt \
-  --output coding_autograder_files/reports/
-```
+Outputs (text area):
+- Supply summary: sufficiency, hours supported, remaining per supply, run-out times.
+- Schedule summary: pass/fail, coverage rate, first gaps (if any).
+- Hourly schedule: time range, count on shift, who/role per station.
 
-## 📦 Upgrading
-
-To upgrade to the latest versions:
-
-```bash
-# Upgrade all packages
-pip install --upgrade -r requirements.txt
-
-# Or just upgrade fair-llm
-pip install --upgrade fair-llm
-```
-
-## 🐛 Troubleshooting
-
-### Missing Dependencies
-If you get import errors, ensure all requirements are installed:
-```bash
-pip install -r requirements.txt --force-reinstall
-```
-
-### API Key Issues
-The demos will create sample files if they don't exist, but ensure your API keys are set:
+Programmatic Use
+----------------
 ```python
-python -c "import os; print('OpenAI Key:', 'Set' if os.getenv('OPENAI_API_KEY') else 'Not Set')"
+from run_midpoint_demo import run_disaster_sim
+
+result, trace, schedule = run_disaster_sim(
+    num_people=10,
+    water_liters=500,
+    food_meals=50,
+    med_kits=50,
+    fuel_liters=500,
+)
+print(result)    # Final JSON
+print(schedule)  # Raw schedule entries
 ```
 
-### Virtual Environment Issues
-Always use a virtual environment to avoid conflicts:
-```bash
-python -m venv venv
-source venv/bin/activate
-pip install -r requirements.txt
-```
+Assumptions / Limitations
+-------------------------
+- Single station; fixed role requirements.
+- Responders identical (same roles/skills/station).
+- Fixed horizon (e.g., 8 hours, 1-hour slots), simple rest model, max 8 hours/day.
+- Static per-person-per-hour consumption rates.
 
-## 📚 What's Included
-
-After installation, you'll have:
-- ✅ The complete FAIR-LLM framework
-- ✅ Multi-agent orchestration capabilities
-- ✅ Document processing tools
-- ✅ Vector search with FAISS
-- ✅ Beautiful terminal output with Rich
-- ✅ Complete demo applications
-
-## 🎉 Next Steps
-
-1. Run `python verify_setup.py` to confirm everything is working
-2. Explore the `demos/` folder for examples
-3. Set up and run some demos
-4. Start building your own multi-agent demo files!
-
-## 👥 Contributors
-Developed by the USAFA AI Center team:
-
-Ryan R (rrabinow@uccs.edu)
-Austin W (austin.w@ardentinc.com)
-Eli G (elijah.g@ardentinc.com)
-Chad M (Chad.Mello@afacademy.af.edu)
+Extending
+---------
+- Specilized jobs i.e. transport, search and rescue, medical, etc.
+- Add a tool that can estimate timeline for response and build appropriate schedule
+- Improved GUI to show longer schedule
